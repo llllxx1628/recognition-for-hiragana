@@ -9,7 +9,7 @@ This project implements a neural network for recognizing Hiragana characters fro
 - Label smoothing to prevent overconfidence in predictions
 
 ## Requirements
-The project depends on the following libraries:
+The project is build on Python 3.8+ and depends on the following libraries:
 
 ```plaintext
 torch==2.0.0
@@ -27,7 +27,7 @@ pip install -r requirements.txt
 ## Getting Started
 ### Step 1: Clone the Repository
 ```bash
-git clone https://github.com/llllxx1628/hiragana-recognition.git
+git clone https://github.com/llllxx1628/recognition-for-hiragana.git
 cd hiragana-recognition
 ```
 
