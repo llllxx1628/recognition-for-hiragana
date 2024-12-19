@@ -6,6 +6,8 @@ from torchvision.transforms import Compose, ToTensor, Normalize, RandomRotation,
 from sklearn.metrics import balanced_accuracy_score
 from model import HiraganaRecognitionNet, LabelSmoothingLoss
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 class KuzushijiDataset(Dataset):
     """
     Dataset class for Kuzushiji-49.
@@ -40,7 +42,8 @@ if __name__ == "__main__":
     parser.add_argument('--early_stop_patience', type=int, default=10, help="Early stopping patience")
     parser.add_argument('--model_save_path', type=str, default="best_model.pth", help="Path to save the best model")
     args = parser.parse_args()
-    #Train model
+
+    # train model
     if args.mode == "train":
         dataset = KuzushijiDataset(
             image_file=args.train_images,
@@ -61,8 +64,8 @@ if __name__ == "__main__":
         train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
         val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False)
 
-        # Model initialization
-        model = HiraganaRecognitionNet(num_classes=49).to(torch.device('cuda'))
+        # model initialization
+        model = HiraganaRecognitionNet(num_classes=49).to(device)
         optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=args.epochs, eta_min=1e-5)
         criterion = LabelSmoothingLoss(smoothing=0.1)
@@ -74,7 +77,7 @@ if __name__ == "__main__":
             model.train()
             train_loss = 0
             for images, labels in train_loader:
-                images, labels = images.to(torch.device('cuda')), labels.to(torch.device('cuda'))
+                images, labels = images.to(device), labels.to(device)
 
                 optimizer.zero_grad()
                 outputs = model(images)
@@ -91,7 +94,7 @@ if __name__ == "__main__":
             all_preds, all_labels = [], []
             with torch.no_grad():
                 for images, labels in val_loader:
-                    images, labels = images.to(torch.device('cuda')), labels.to(torch.device('cuda'))
+                    images, labels = images.to(device), labels.to(device)
                     outputs = model(images)
                     loss = criterion(outputs, labels)
                     val_loss += loss.item() * images.size(0)
@@ -116,7 +119,8 @@ if __name__ == "__main__":
                 if early_stop_counter >= args.early_stop_patience:
                     print("Early stopping triggered.")
                     break
-    #Evaluate model
+
+    # eval model
     elif args.mode == "eval":
         test_dataset = KuzushijiDataset(
             image_file=args.test_images,
@@ -129,8 +133,8 @@ if __name__ == "__main__":
 
         test_loader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=False)
 
-        model = HiraganaRecognitionNet(num_classes=49).to(torch.device('cuda'))
-        model.load_state_dict(torch.load(args.model_save_path))
+        model = HiraganaRecognitionNet(num_classes=49).to(device)
+        model.load_state_dict(torch.load(args.model_save_path, map_location=device))
         model.eval()
 
         test_loss = 0
@@ -138,7 +142,7 @@ if __name__ == "__main__":
         criterion = LabelSmoothingLoss(smoothing=0.1)
         with torch.no_grad():
             for images, labels in test_loader:
-                images, labels = images.to(torch.device('cuda')), labels.to(torch.device('cuda'))
+                images, labels = images.to(device), labels.to(device)
                 outputs = model(images)
                 loss = criterion(outputs, labels)
                 test_loss += loss.item() * images.size(0)
