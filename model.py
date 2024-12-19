@@ -169,7 +169,8 @@ class HiraganaRecognitionNet(nn.Module):
         x = self.residual3(x)
         x = self.attention3(x)
 
-        x = self.global_avg_pool(x).squeeze()
+        x = self.global_avg_pool(x)
+        x = x.view(x.size(0), -1)  
         return self.classifier(x)
 
 class LabelSmoothingLoss(nn.Module):
