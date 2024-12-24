@@ -78,7 +78,6 @@ uvicorn hiragana_web_server:app --host 0.0.0.0 --port 8000
 
 The server will be accessible at `http://127.0.0.1:8000`. Visit the interactive documentation at `http://127.0.0.1:8000/docs` for testing and understanding the API.
 
-#### Example API Endpoints
 1. **Health Check**:
    - **Endpoint**: `/health`
    - **Method**: GET
@@ -98,7 +97,7 @@ The server will be accessible at `http://127.0.0.1:8000`. Visit the interactive 
      ]
      ```
 
-#### Example Usage
+#### Usage
 
 Using `curl`:
 ```bash
